@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FloatFocus - Enhanced Floating Pomodoro Timer</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#218085">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="FloatFocus">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" id="manifest-placeholder">
+    
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://source.unsplash.com">
+</head>
+<body>
+    <!-- Onboarding Modal -->
+    <div id="onboarding-modal" class="modal">
+        <div class="modal-content onboarding-content">
+            <div class="modal-header">
+                <h2>🚀 Welcome to FloatFocus Enhanced!</h2>
+            </div>
+            <div class="modal-body">
+                <div class="onboarding-section">
+                    <h3>🔍 The "Always On Top" Challenge</h3>
+                    <p>Web browsers have security limitations that prevent websites from staying on top of other applications. But we've got solutions!</p>
+                </div>
+                
+                <div class="floating-solutions">
+                    <div class="solution-card" id="pip-solution">
+                        <div class="solution-header">
+                            <h4>📺 Picture-in-Picture Mode</h4>
+                            <span class="solution-status" id="pip-status">Checking...</span>
+                        </div>
+                        <p>Creates a native floating window that stays on top of all other apps</p>
+                        <ul>
+                            <li>✅ True always-on-top behavior</li>
+                            <li>✅ Interactive timer controls</li>
+                            <li>✅ Works with any app</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="solution-card">
+                        <div class="solution-header">
+                            <h4>📱 Install as PWA App</h4>
+                            <span class="solution-status status--success">Available</span>
+                        </div>
+                        <p>Install FloatFocus as a desktop/mobile app for better window management</p>
+                        <ul>
+                            <li>✅ Multiple independent windows</li>
+                            <li>✅ Desktop integration</li>
+                            <li>✅ Keyboard shortcuts</li>
+                        </ul>
+                        <button id="install-pwa-btn" class="btn btn--primary btn--sm">Install App</button>
+                    </div>
+                    
+                    <div class="solution-card">
+                        <div class="solution-header">
+                            <h4>🔧 OS-Level Tools</h4>
+                            <span class="solution-status status--info">Recommended</span>
+                        </div>
+                        <p>Use your operating system's built-in tools for true always-on-top</p>
+                        <div class="os-tools" id="os-tools">
+                            <!-- OS-specific instructions will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="onboarding-actions">
+                    <button id="skip-onboarding" class="btn btn--outline">Skip for Now</button>
+                    <button id="try-pip" class="btn btn--primary">Try Picture-in-Picture</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dynamic Background Container -->
+    <div id="background-container">
+        <div id="background-image-1" class="background-image"></div>
+        <div id="background-image-2" class="background-image"></div>
+        <div class="background-overlay"></div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app" class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="app-title">
+                    <span class="logo">🍅</span>
+                    FloatFocus Enhanced
+                </h1>
+                <div class="header-controls">
+                    <button id="help-btn" class="btn btn--outline btn--sm" title="Floating Help">
+                        <span class="theme-icon">❓</span>
+                    </button>
+                    <button id="theme-toggle" class="btn btn--outline btn--sm" title="Toggle Theme">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                    <div class="floating-options">
+                        <button id="pip-toggle" class="btn btn--primary btn--sm">
+                            📺 PiP Mode
+                        </button>
+                        <button id="float-toggle" class="btn btn--secondary btn--sm">
+                            Float Timer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Floating Mode Notification -->
+        <div id="floating-notice" class="floating-notice hidden">
+            <div class="notice-content">
+                <span class="notice-icon">💡</span>
+                <div class="notice-text">
+                    <strong>Pro Tip:</strong> For true always-on-top behavior, try Picture-in-Picture mode or use your OS tools!
+                    <button id="show-solutions" class="btn btn--sm btn--outline">Show Solutions</button>
+                </div>
+                <button id="dismiss-notice" class="notice-close">✕</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Grid -->
+            <div class="dashboard">
+                <!-- Timer Card -->
+                <div class="card timer-card">
+                    <div class="card__body">
+                        <div class="timer-display">
+                            <div class="timer-circle">
+                                <svg class="progress-ring" width="200" height="200">
+                                    <circle class="progress-ring__circle-bg" cx="100" cy="100" r="90"></circle>
+                                    <circle class="progress-ring__circle" cx="100" cy="100" r="90"></circle>
+                                </svg>
+                                <div class="timer-content">
+                                    <div id="timer-time" class="timer-time">25:00</div>
+                                    <div id="timer-label" class="timer-label">Focus Time</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="timer-controls">
+                            <button id="start-pause-btn" class="btn btn--primary btn--lg">
+                                <span class="btn-icon">▶</span>
+                                Start
+                            </button>
+                            <button id="reset-btn" class="btn btn--outline">
+                                <span class="btn-icon">⟲</span>
+                                Reset
+                            </button>
+                            <button id="skip-btn" class="btn btn--outline">
+                                <span class="btn-icon">⏭</span>
+                                Skip
+                            </button>
+                        </div>
+
+                        <div class="timer-modes">
+                            <button class="mode-btn active" data-mode="focus">Focus</button>
+                            <button class="mode-btn" data-mode="short-break">Short Break</button>
+                            <button class="mode-btn" data-mode="long-break">Long Break</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Task Card -->
+                <div class="card current-task-card">
+                    <div class="card__header">
+                        <h3>Current Task</h3>
+                        <button id="new-wallpaper-btn" class="btn btn--outline btn--sm">
+                            🖼 New Background
+                        </button>
+                    </div>
+                    <div class="card__body">
+                        <div id="current-task" class="current-task">
+                            <div class="task-empty">
+                                <span class="task-icon">📝</span>
+                                <p>No task selected</p>
+                                <button id="add-task-btn" class="btn btn--primary btn--sm">Add Task</button>
+                            </div>
+                        </div>
+                        
+                        <div class="motivational-quote">
+                            <div id="quote-text" class="quote-text">
+                                "The way to get started is to quit talking and begin doing."
+                            </div>
+                            <div id="quote-author" class="quote-author">- Walt Disney</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Card -->
+                <div class="card progress-card">
+                    <div class="card__header">
+                        <h3>Today's Progress</h3>
+                        <div class="progress-actions">
+                            <button id="open-analytics" class="btn btn--outline btn--sm">📊 Analytics</button>
+                        </div>
+                    </div>
+                    <div class="card__body">
+                        <div class="progress-stats">
+                            <div class="stat">
+                                <div class="stat-value" id="completed-pomodoros">0</div>
+                                <div class="stat-label">Completed</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value" id="current-streak">0</div>
+                                <div class="stat-label">Streak</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value" id="focus-time">0h</div>
+                                <div class="stat-label">Focus Time</div>
+                            </div>
+                        </div>
+                        
+                        <div class="xp-section">
+                            <div class="xp-header">
+                                <span class="level-badge">Level <span id="user-level">1</span></span>
+                                <span class="xp-amount"><span id="current-xp">0</span> XP</span>
+                            </div>
+                            <div class="xp-bar">
+                                <div id="xp-progress" class="xp-progress"></div>
+                            </div>
+                            <div class="xp-next">
+                                <span id="xp-to-next">500</span> XP to next level
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks Card -->
+                <div class="card tasks-card">
+                    <div class="card__header">
+                        <h3>Tasks</h3>
+                        <button id="add-task-header-btn" class="btn btn--primary btn--sm">+ Add</button>
+                    </div>
+                    <div class="card__body">
+                        <div id="tasks-list" class="tasks-list">
+                            <!-- Tasks will be dynamically inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Achievements Card -->
+                <div class="card achievements-card">
+                    <div class="card__header">
+                        <h3>Achievements</h3>
+                    </div>
+                    <div class="card__body">
+                        <div id="achievements-list" class="achievements-list">
+                            <!-- Achievements will be dynamically inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Card -->
+                <div class="card analytics-card">
+                    <div class="card__header">
+                        <h3>Analytics</h3>
+                    </div>
+                    <div class="card__body">
+                        <div class="analytics-content">
+                            <div class="habit-tracker">
+                                <h4>Habit Formation Progress</h4>
+                                <div class="habit-chain" id="habit-chain">
+                                    <!-- Habit chain will be generated here -->
+                                </div>
+                                <div class="habit-stats">
+                                    <div class="habit-stat">
+                                        <span class="habit-label">Habit Strength</span>
+                                        <div class="habit-strength">
+                                            <div id="habit-strength-bar" class="habit-strength-bar"></div>
+                                        </div>
+                                        <span id="habit-strength-text" class="habit-strength-text">Developing</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Timer -->
+    <div id="floating-timer" class="floating-timer hidden">
+        <div class="floating-timer-content">
+            <div class="floating-timer-display">
+                <div class="floating-progress">
+                    <svg width="80" height="80">
+                        <circle class="floating-progress-bg" cx="40" cy="40" r="35"></circle>
+                        <circle class="floating-progress-circle" cx="40" cy="40" r="35"></circle>
+                    </svg>
+                    <div class="floating-time" id="floating-time">25:00</div>
+                </div>
+            </div>
+            <div class="floating-controls">
+                <button id="floating-play-pause" class="floating-btn">▶</button>
+                <button id="floating-pip" class="floating-btn" title="Picture-in-Picture">📺</button>
+                <button id="floating-close" class="floating-btn">✕</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div id="task-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Task</h3>
+                <button id="close-modal" class="modal-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="task-form">
+                    <div class="form-group">
+                        <label class="form-label" for="task-title">Task Name</label>
+                        <input type="text" id="task-title" class="form-control" placeholder="Enter task name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="task-category">Category</label>
+                        <select id="task-category" class="form-control">
+                            <option value="general">General</option>
+                            <option value="coding">Coding</option>
+                            <option value="study">Study</option>
+                            <option value="writing">Writing</option>
+                            <option value="creative">Creative</option>
+                            <option value="meeting">Meeting</option>
+                            <option value="fitness">Fitness</option>
+                            <option value="reading">Reading</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="task-pomodoros">Estimated Pomodoros</label>
+                        <input type="number" id="task-pomodoros" class="form-control" min="1" max="20" value="1">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="cancel-task" class="btn btn--outline">Cancel</button>
+                        <button type="submit" class="btn btn--primary">Add Task</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Solutions Modal -->
+    <div id="solutions-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🚀 Floating Solutions</h3>
+                <button id="close-solutions" class="modal-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="solution-tabs">
+                    <button class="tab-btn active" data-tab="pip">Picture-in-Picture</button>
+                    <button class="tab-btn" data-tab="pwa">PWA App</button>
+                    <button class="tab-btn" data-tab="os">OS Tools</button>
+                </div>
+                
+                <div class="tab-content active" id="pip-tab">
+                    <h4>📺 Picture-in-Picture Mode</h4>
+                    <p>The best solution for true floating! Creates a native browser window that stays on top.</p>
+                    <div class="pip-demo">
+                        <div class="feature-list">
+                            <div class="feature-item">✅ Always stays on top of all apps</div>
+                            <div class="feature-item">✅ Interactive timer controls</div>
+                            <div class="feature-item">✅ Compact, distraction-free view</div>
+                            <div class="feature-item">✅ Works while browsing other sites</div>
+                        </div>
+                        <div class="pip-status-info">
+                            <strong>Browser Support:</strong>
+                            <span id="pip-browser-status"></span>
+                        </div>
+                        <button id="start-pip" class="btn btn--primary">Start Picture-in-Picture</button>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="pwa-tab">
+                    <h4>📱 Install as PWA App</h4>
+                    <p>Install FloatFocus as a desktop or mobile app for better window management.</p>
+                    <div class="pwa-instructions">
+                        <div class="instruction-step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <strong>Click "Install App" button</strong>
+                                <p>Look for the install prompt in your browser</p>
+                            </div>
+                        </div>
+                        <div class="instruction-step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <strong>Add to desktop/home screen</strong>
+                                <p>Create multiple windows and manage them independently</p>
+                            </div>
+                        </div>
+                        <div class="instruction-step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <strong>Use OS window management</strong>
+                                <p>Now you can use your OS tools to keep it on top</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="install-pwa-solutions" class="btn btn--primary">Install FloatFocus App</button>
+                </div>
+                
+                <div class="tab-content" id="os-tab">
+                    <h4>🔧 Operating System Tools</h4>
+                    <p>Use your OS built-in tools for ultimate control over window positioning.</p>
+                    <div id="os-instructions" class="os-instructions">
+                        <!-- OS-specific instructions will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Focus Mode Overlay -->
+    <div id="focus-overlay" class="focus-overlay hidden">
+        <div class="focus-content">
+            <h2>Focus Mode Active</h2>
+            <p>Stay focused on your current task</p>
+            <button id="exit-focus" class="btn btn--outline">Exit Focus Mode</button>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notifications" class="notifications"></div>
+
+    <!-- PWA Install Prompt -->
+    <div id="pwa-install-banner" class="pwa-banner hidden">
+        <div class="pwa-banner-content">
+            <span class="pwa-icon">📱</span>
+            <div class="pwa-text">
+                <strong>Install FloatFocus</strong>
+                <p>Get better floating and window management</p>
+            </div>
+            <button id="pwa-install" class="btn btn--primary btn--sm">Install</button>
+            <button id="pwa-dismiss" class="pwa-close">✕</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
